@@ -7,20 +7,20 @@ import org.springframework.http.HttpMethod.TRACE
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(controllers = [GreetingsController::class])
 internal class GreetingsControllerTest @Autowired constructor(private val mockMvc: MockMvc) {
 
     @Test
     fun `should not allow trace calls`() {
-        mockMvc.perform(request(TRACE, "/greetings"))
+        val header = "X-USER-ID"
+        mockMvc.perform(
+            request(TRACE, "/greetings")
+                .header(header, "some_id")
+        )
             .andExpect(status().isMethodNotAllowed)
-            .andDo {
-                println("request headers ${it.request.headerNames}")
-                println("response headers ${it.response.headerNames}")
-            }
+            .andExpect(header().doesNotExist(header))
     }
 
     @Test
